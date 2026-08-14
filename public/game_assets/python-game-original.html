@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Beginner Game – 6 ด่านเริ่มต้น</title>
+  <style>
+    :root{
+      --bg:#0f1220;--panel:#171a2b;--ink:#e8ebff;--muted:#a6b0d8;--accent:#7c9fff;--good:#3ddc84;--bad:#ff5d6c;--warn:#ffc95d;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:radial-gradient(1200px 600px at 80% -10%,#1b2347 0%,#0f1220 50%,#0b0e1a 100%);color:var(--ink)}
+    .wrap{max-width:1200px;margin:24px auto;padding:16px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;gap:10px;align-items:center}
+    .badge{background:linear-gradient(135deg,#6aa8ff,#a07cff);padding:6px 10px;border-radius:10px;font-weight:700;color:#0b1020}
+    .card{background:var(--panel);border:1px solid #232847;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1.2fr .8fr}}
+    .section{padding:16px 18px}
+    h1{font-size:22px;margin:0}
+    h2{font-size:16px;margin:0 0 8px;color:var(--muted)}
+    .prompt{background:#10142a;border:1px dashed #2a335c;border-radius:12px;padding:12px;line-height:1.5}
+    textarea{width:100%;min-height:180px;background:#0e1328;color:var(--ink);border:1px solid #283055;border-radius:12px;padding:12px 12px 44px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:14px;resize:vertical}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    button{border:1px solid #2a335c;background:#121632;color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer;transition:.2s transform,.2s background}
+    button:hover{transform:translateY(-1px);background:#161b3b}
+    button.primary{background:linear-gradient(135deg,#6aa8ff,#7c9fff);color:#0b1020;border:none}
+    button.good{background:linear-gradient(135deg,#3ddc84,#36c46e);color:#042012;border:none}
+    button.warn{background:linear-gradient(135deg,#ffc95d,#ffb24d);color:#3b2500;border:none}
+    button.bad{background:linear-gradient(135deg,#ff8fa3,#ff5d6c);color:#3b0009;border:none}
+    button:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(30%)}
+    .out{min-height:200px;background:#0c1024;border:1px solid #232847;border-radius:12px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .out .line{padding:6px 8px;border-bottom:1px solid #1a2145;white-space:pre-wrap}
+    .out .line:last-child{border-bottom:none}
+    .line .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 8px;border-radius:999px;margin-right:8px;background:#141a39;color:var(--muted)}
+    .line.good .tag{background:#0f2a1e;color:#76f0b4}
+    .line.bad  .tag{background:#2a1216;color:#ffb4be}
+    .line.info .tag{background:#1a2a39;color:#5eb8ff}
+    .muted{color:var(--muted)}
+    .status{display:flex;gap:10px;align-items:center}
+    .chip{font-size:12px;padding:6px 10px;border:1px solid #2a335c;background:#10142a;border-radius:999px;color:var(--muted)}
+    .chip.unlocked{background:linear-gradient(135deg,#3ddc84,#36c46e);color:#042012;border:none}
+    .hint{background:#10142a;border:1px dashed #33407a;color:#dfe5ff;border-radius:10px;padding:10px;margin-top:8px}
+    .footer{margin-top:18px;color:var(--muted);font-size:12px}
+    code.kbd{background:#0a0f22;border:1px solid #233;padding:1px 6px;border-radius:6px}
+    .level-progress{display:flex;gap:8px;margin-bottom:16px;justify-content:center;flex-wrap:wrap}
+    .level-dot{width:32px;height:32px;border-radius:50%;background:#2a335c;transition:.3s;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#a6b0d8;border:2px solid transparent;position:relative}
+    .level-dot:hover:not(.locked){transform:scale(1.1);background:#3a4470}
+    .level-dot.completed{background:var(--good);color:#042012;transform:scale(1.05);border-color:#2db967}
+    .level-dot.completed:hover{transform:scale(1.15);box-shadow:0 0 16px rgba(61,220,132,.4)}
+    .level-dot.current{background:var(--accent);color:#0b1020;transform:scale(1.1);box-shadow:0 0 12px rgba(124,159,255,.4);border-color:#5b8eff}
+    .level-dot.locked{cursor:not-allowed;opacity:.3;background:#1a1e35;color:#555}
+    .level-dot.locked:hover{transform:none}
+    .success-animation{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#3ddc84,#36c46e);color:#042012;padding:20px 30px;border-radius:16px;font-size:18px;font-weight:700;z-index:1000;opacity:0;animation:successPop .8s ease-out forwards;box-shadow:0 20px 40px rgba(61,220,132,.3)}
+    @keyframes successPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.8)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+    .fade-out{animation:fadeOut .5s ease-out forwards}
+    @keyframes fadeOut{to{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.31L12 14.77 7.22 16.69l.91-5.31L4.27 7.62l5.34-.78L12 2z" fill="#a7b8ff"/></svg>
+      <div>
+        <h1>Python Beginner Game</h1>
+        <div class="muted">เรียนรู้ Python แบบเกม • <span id="levelTitle">Hello World</span></div>
+      </div>
+    </div>
+    <div class="status">
+      <span id="levelChip" class="chip">Level 1 / 6</span>
+      <span id="resultChip" class="chip">ยังไม่ตรวจ</span>
+    </div>
+  </header>
+
+  <div class="level-progress" id="levelProgress"></div>
+
+  <div class="grid">
+    <div class="card section">
+      <h2>ภารกิจ</h2>
+      <div id="prompt" class="prompt"></div>
+      <div style="margin-top:12px">
+        <textarea id="editor" placeholder="เขียนโค้ดที่นี่..."></textarea>
+        <div class="toolbar">
+          <button id="runBtn"        class="primary">▶ Run</button>
+          <button id="checkBtn"      class="good">✔ ตรวจสอบ</button>
+          <button id="hintBtn"       class="warn">💡 คำใบ้</button>
+          <button id="exampleBtn"    class="primary">📝 ตัวอย่าง</button>
+          <button id="prevBtn">⬅ ด่านก่อน</button>
+          <button id="clearBtn">🧹 ล้างโค้ด</button>
+          <button id="clearOutputBtn">🗑 ล้าง Output</button>
+          <button id="nextBtn" class="good" disabled>➡ ด่านถัดไป</button>
+        </div>
+        <div id="hintBox" class="hint" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>ผลลัพธ์การรัน</h2>
+      <div id="outputBox" class="out" aria-live="polite"></div>
+      <div class="footer">
+        กด <code class="kbd">Run</code> เพื่อดูผลลัพธ์ • กด <code class="kbd">ตรวจสอบ</code> เมื่อเสร็จแล้ว<br>
+        <span class="muted">💡 คลิกที่หมายเลขด่านด้านบนเพื่อย้อนกลับ</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUG FIX: โหลด Skulpt จาก CDN ใหม่ที่เสถียรกว่า -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulkt-stdlib.js"></script>
+
+<script>
+/* ══════════════════════════════════════
+   LEVEL DEFINITIONS
+══════════════════════════════════════ */
+const LEVELS = [
+  {
+    id: 1,
+    title: 'Hello World',
+    prompt: 'พิมพ์โค้ด Python ให้แสดงข้อความ <code>Hello World</code> บนหน้าจอ โดยใช้คำสั่ง <code>print()</code>',
+    example: "# ตัวอย่างการใช้ print()\nprint('สวัสดี')",
+    // BUG FIX: validator รับ lines[] แทน output string เดิม เพื่อรองรับ multi-line
+    validator: (lines) => lines.some(l => l.trim().toLowerCase() === 'hello world'),
+    hints: [
+      'ใช้คำสั่ง print() เพื่อแสดงข้อความ',
+      "ใส่ข้อความไว้ในเครื่องหมายอัญประกาศ ' ' หรือ \" \"",
+      "ตัวอย่าง: print('Hello World')"
+    ]
+  },
+  {
+    id: 2,
+    title: 'เก็บไว้ในตัวแปร',
+    prompt: "สร้างตัวแปร <code>message</code> เก็บข้อความ <code>สวัสดีโลก</code> แล้วใช้ <code>print()</code> แสดงผล",
+    example: "# ตัวอย่างการสร้างตัวแปร\nname = 'จอห์น'\nprint(name)",
+    validator: (lines) => lines.some(l => l.trim() === 'สวัสดีโลก'),
+    hints: [
+      "สร้างตัวแปรด้วย: ชื่อตัวแปร = 'ค่า'",
+      'ตั้งชื่อตัวแปรว่า message',
+      'ใช้ print(message) เพื่อแสดงค่าในตัวแปร'
+    ]
+  },
+  {
+    id: 3,
+    title: 'ตัวแปรตัวเลข',
+    prompt: "สร้างตัวแปร <code>age</code> เก็บตัวเลข <code>25</code> แล้วใช้ <code>print()</code> แสดงผล",
+    example: '# ตัวอย่างตัวแปรตัวเลข\nscore = 100\nprint(score)',
+    validator: (lines) => lines.some(l => l.trim() === '25'),
+    hints: [
+      'สร้างตัวแปรเก็บตัวเลขไม่ต้องใส่เครื่องหมายอัญประกาศ',
+      'ตัวอย่าง: age = 25',
+      'แล้วใช้ print(age) แสดงผล'
+    ]
+  },
+  {
+    id: 4,
+    title: 'การต่อข้อความ',
+    prompt: "สร้างตัวแปร <code>first_name = 'สมชาย'</code> และ <code>last_name = 'ใจดี'</code> แล้วต่อกันด้วย + แสดงผลเป็น <code>สมชาย ใจดี</code>",
+    example: "# ตัวอย่างการต่อข้อความ\nword1 = 'Python'\nword2 = 'Programming'\nresult = word1 + ' ' + word2\nprint(result)",
+    validator: (lines) => lines.some(l => l.trim() === 'สมชาย ใจดี'),
+    hints: [
+      'ใช้เครื่องหมาย + เพื่อต่อข้อความ',
+      "อย่าลืมใส่ช่องว่างระหว่างชื่อและนามสกุล: ' '",
+      "ตัวอย่าง: first_name + ' ' + last_name"
+    ]
+  },
+  {
+    id: 5,
+    title: 'การคำนวณ',
+    prompt: "สร้างตัวแปร <code>num1 = 15</code> และ <code>num2 = 10</code> แล้วบวกกันเก็บในตัวแปร <code>result</code> และแสดงผล",
+    example: '# ตัวอย่างการคำนวณ\na = 5\nb = 3\nanswer = a * b\nprint(answer)',
+    // BUG FIX: ผลลัพธ์ 15+10=25 ต้องเป็น '25'
+    validator: (lines) => lines.some(l => l.trim() === '25'),
+    hints: [
+      'ใช้เครื่องหมาย + เพื่อบวกตัวเลข',
+      'เก็บผลลัพธ์ในตัวแปร result',
+      'result = num1 + num2'
+    ]
+  },
+  {
+    id: 6,
+    title: 'การใช้ input()',
+    prompt: "ใช้ <code>input('ชื่อคุณคืออะไร? ')</code> รับชื่อผู้ใช้ แล้วแสดงผล <code>สวัสดี [ชื่อ]</code>",
+    example: "# ตัวอย่างการใช้ input()\ncolor = input('สีที่ชอบ? ')\nprint('สีที่คุณชอบคือ ' + color)",
+    // BUG FIX: validator รับ (lines, inputsUsed) และตรวจ output มี 'สวัสดี' + มีการ input จริง
+    validator: (lines, inputsUsed) => lines.some(l => l.trim().startsWith('สวัสดี')) && inputsUsed,
+    hints: [
+      'ใช้ input() เพื่อรับข้อมูลจากผู้ใช้',
+      "เก็บผลลัพธ์ในตัวแปร: name = input('ข้อความ')",
+      "ต่อข้อความด้วย 'สวัสดี ' + name"
+    ]
+  }
+];
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let currentLevel  = 0;
+let completedLevels = new Set();
+let hintIndex     = 0;
+let runCount      = 0;
+// BUG FIX: เปลี่ยนชื่อตัวแปร DOM จาก 'output' เป็น 'outputBox'
+//          เพื่อไม่ให้ shadow กับ parameter 'output' ใน runFallbackPython
+
+/* ══════════════════════════════════════
+   DOM ELEMENTS
+══════════════════════════════════════ */
+const editor       = document.getElementById('editor');
+const outputBox    = document.getElementById('outputBox');   // ← ชื่อใหม่
+const promptBox    = document.getElementById('prompt');
+const levelChip    = document.getElementById('levelChip');
+const levelTitleEl = document.getElementById('levelTitle');
+const resultChip   = document.getElementById('resultChip');
+const hintBox      = document.getElementById('hintBox');
+const levelProgress= document.getElementById('levelProgress');
+
+const runBtn       = document.getElementById('runBtn');
+const checkBtn     = document.getElementById('checkBtn');
+const hintBtn      = document.getElementById('hintBtn');
+const exampleBtn   = document.getElementById('exampleBtn');
+const clearBtn     = document.getElementById('clearBtn');
+const clearOutputBtn = document.getElementById('clearOutputBtn');
+const prevBtn      = document.getElementById('prevBtn');
+const nextBtn      = document.getElementById('nextBtn');
+
+/* ══════════════════════════════════════
+   OUTPUT HELPERS
+══════════════════════════════════════ */
+// BUG FIX: เก็บ output lines แยกต่างหากใน array เพื่อให้ validator อ่านได้ถูกต้อง
+// ไม่ต้องพึ่ง DOM textContent ที่มี tag ปน
+let capturedLines  = [];   // เก็บบรรทัด print จริงๆ
+let inputsUsed     = false; // ติดตามว่ามีการเรียก input() จริงๆ
+
+function appendLine(type, text) {
+  runCount++;
+  const div = document.createElement('div');
+  div.className = 'line ' + type;
+  const time = new Date().toLocaleTimeString();
+  const icon = type === 'good' ? '✓' : type === 'bad' ? '✗' : 'ℹ';
+  div.innerHTML = `<span class="tag">${icon} #${runCount} ${time}</span>${escHTML(text)}`;
+  outputBox.appendChild(div);
+  outputBox.scrollTop = outputBox.scrollHeight;
+}
+
+function escHTML(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearOutput() {
+  outputBox.innerHTML = '';
+  runCount = 0;
+  capturedLines = [];
+  inputsUsed = false;
+}
+
+/* ══════════════════════════════════════
+   SKULPT SETUP
+   BUG FIX: setupSkulpt ถูกเรียกแค่ครั้งเดียวตอน init
+            ไม่ซ้ำใน initializeSkulpt + init อีกรอบ
+══════════════════════════════════════ */
+let engineReady = false;
+
+function setupSkulpt() {
+  if (typeof Sk === 'undefined') return false;
+  Sk.pre = 'outputBox';
+  Sk.configure({
+    output: (text) => {
+      // Skulpt เรียก output ต่อ print โดยตัดขึ้นบรรทัดให้เอง
+      const clean = text.replace(/\n$/, '');
+      if (clean !== '') {
+        capturedLines.push(clean);
+        appendLine('good', clean);
+      }
+    },
+    read: (x) => {
+      if (!Sk.builtinFiles || !Sk.builtinFiles.files[x])
+        throw new Error("File not found: '" + x + "'");
+      return Sk.builtinFiles.files[x];
+    },
+    inputfun: (promptText) => {
+      const val = window.prompt(promptText || 'Input:') || '';
+      inputsUsed = true;
+      appendLine('info', `${promptText}${val}`);
+      return val;
+    },
+    inputfunTakesPrompt: true,
+  });
+  return true;
+}
+
+/* ══════════════════════════════════════
+   FALLBACK PYTHON RUNNER
+   BUG FIX ทั้งหมดใน parser:
+   1. string literal detection: trim() ก่อนตรวจ
+   2. string concat split ถูก: ใช้ splitTokens แทน split('+') ดิบๆ
+   3. arithmetic ถูกตรวจก่อน string concat
+   4. variable lookup case-sensitive ถูกต้อง
+   5. print() รองรับ f-string เบื้องต้น และ , separator
+══════════════════════════════════════ */
+function runFallbackPython(code) {
+  capturedLines = [];
+  inputsUsed = false;
+  const vars = {};
+
+  // แยก token โดยรักษา string literals (รองรับ ' และ ")
+  function tokenize(expr) {
+    const tokens = [];
+    let i = 0;
+    while (i < expr.length) {
+      if (expr[i] === ' ' || expr[i] === '\t') { i++; continue; }
+      if (expr[i] === "'" || expr[i] === '"') {
+        const q = expr[i]; let s = ''; i++;
+        while (i < expr.length && expr[i] !== q) {
+          if (expr[i] === '\\') i++;
+          s += expr[i++];
+        }
+        i++; // closing quote
+        tokens.push({ type: 'str', val: s });
+      } else if (/\d/.test(expr[i]) || (expr[i] === '-' && tokens.length === 0)) {
+        let n = '';
+        if (expr[i] === '-') { n = '-'; i++; }
+        while (i < expr.length && /[\d.]/.test(expr[i])) n += expr[i++];
+        tokens.push({ type: 'num', val: parseFloat(n) });
+      } else if (/\w/.test(expr[i])) {
+        let name = '';
+        while (i < expr.length && /\w/.test(expr[i])) name += expr[i++];
+        tokens.push({ type: 'id', val: name });
+      } else {
+        tokens.push({ type: 'op', val: expr[i] }); i++;
+      }
+    }
+    return tokens;
+  }
+
+  // ประเมินค่า expression (รองรับ +, -, *, /)
+  function evalExpr(expr) {
+    expr = expr.trim();
+
+    // input() call
+    const inputM = expr.match(/^input\s*\(\s*(.*?)\s*\)$/s);
+    if (inputM) {
+      let promptStr = inputM[1].trim();
+      if ((promptStr.startsWith("'") && promptStr.endsWith("'")) ||
+          (promptStr.startsWith('"') && promptStr.endsWith('"'))) {
+        promptStr = promptStr.slice(1, -1);
+      }
+      const val = window.prompt(promptStr) || '';
+      inputsUsed = true;
+      appendLine('info', `${promptStr}${val}`);
+      return val;
+    }
+
+    // str() / int() / float() conversion
+    const castM = expr.match(/^(str|int|float)\s*\((.+)\)$/);
+    if (castM) {
+      const inner = evalExpr(castM[2]);
+      if (castM[1] === 'str') return String(inner);
+      if (castM[1] === 'int') return parseInt(inner);
+      if (castM[1] === 'float') return parseFloat(inner);
+    }
+
+    const tokens = tokenize(expr);
+    if (tokens.length === 0) return '';
+
+    // single token
+    if (tokens.length === 1) {
+      const t = tokens[0];
+      if (t.type === 'str') return t.val;
+      if (t.type === 'num') return t.val;
+      if (t.type === 'id') {
+        if (t.val === 'True') return true;
+        if (t.val === 'False') return false;
+        if (t.val === 'None') return null;
+        if (t.val in vars) return vars[t.val];
+        throw new Error(`ตัวแปร '${t.val}' ยังไม่ได้กำหนดค่า`);
+      }
+    }
+
+    // multi-token: evaluate left-to-right with +/-/*//
+    // resolve each token value first
+    const vals = [];
+    const ops  = [];
+    let i = 0;
+    while (i < tokens.length) {
+      const t = tokens[i];
+      if (t.type === 'op' && (t.val === '+' || t.val === '-' || t.val === '*' || t.val === '/')) {
+        ops.push(t.val);
+      } else {
+        // get value
+        let v;
+        if (t.type === 'str') v = t.val;
+        else if (t.type === 'num') v = t.val;
+        else if (t.type === 'id') {
+          if (t.val === 'True') v = true;
+          else if (t.val === 'False') v = false;
+          else if (t.val === 'None') v = null;
+          else if (t.val in vars) v = vars[t.val];
+          else throw new Error(`ตัวแปร '${t.val}' ยังไม่ได้กำหนดค่า`);
+        }
+        vals.push(v);
+      }
+      i++;
+    }
+
+    // ถ้า op ทั้งหมดเป็น + และ มีค่าอย่างน้อย 1 ตัวเป็น string → string concat
+    // ถ้าทุกค่าเป็น number → arithmetic
+    let result = vals[0];
+    for (let j = 0; j < ops.length; j++) {
+      const op = ops[j];
+      const right = vals[j + 1];
+      if (op === '+') {
+        if (typeof result === 'string' || typeof right === 'string') {
+          result = String(result) + String(right);
+        } else {
+          result = result + right;
+        }
+      } else if (op === '-') {
+        result = result - right;
+      } else if (op === '*') {
+        result = result * right;
+      } else if (op === '/') {
+        result = result / right;
+      }
+    }
+    return result;
+  }
+
+  // เรียก print
+  function execPrint(args) {
+    // args คือ string ของ arguments ทั้งหมด
+    // รองรับหลาย argument คั่นด้วย ,
+    // BUG FIX: split by comma ที่อยู่นอก string literal
+    const argList = splitArgs(args);
+    const parts = argList.map(a => {
+      const v = evalExpr(a.trim());
+      return v === null ? 'None' : String(v);
+    });
+    const out = parts.join(' ');
+    capturedLines.push(out);
+    appendLine('good', out);
+  }
+
+  // split arguments คั่น , แต่ไม่ split ใน string
+  function splitArgs(s) {
+    const parts = [];
+    let depth = 0, current = '', inStr = false, strChar = '';
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (inStr) {
+        current += c;
+        if (c === strChar) inStr = false;
+      } else if (c === "'" || c === '"') {
+        inStr = true; strChar = c; current += c;
+      } else if (c === '(' || c === '[') {
+        depth++; current += c;
+      } else if (c === ')' || c === ']') {
+        depth--; current += c;
+      } else if (c === ',' && depth === 0) {
+        parts.push(current); current = '';
+      } else {
+        current += c;
+      }
+    }
+    if (current.trim() !== '') parts.push(current);
+    return parts;
+  }
+
+  // --- ประมวลผลทีละบรรทัด ---
+  try {
+    const lines = code.split('\n');
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+
+      // print(...)
+      const printM = line.match(/^print\s*\((.*)\)\s*$/s);
+      if (printM) {
+        execPrint(printM[1]);
+        continue;
+      }
+
+      // assignment: var = expr
+      // BUG FIX: ใช้ /^(\w+)\s*=\s*(.+)$/ และ match กับ expr ทั้งหมด
+      const assignM = line.match(/^(\w+)\s*=\s*(.+)$/s);
+      if (assignM) {
+        const varName = assignM[1];
+        const expr    = assignM[2].trim();
+        vars[varName] = evalExpr(expr);
+        continue;
+      }
+
+      // ถ้าไม่ match อะไรเลย — บอก error
+      throw new Error(`ไม่รองรับคำสั่ง: ${line}`);
+    }
+    return true;
+  } catch (err) {
+    appendLine('bad', `❌ ${err.message}`);
+    return false;
+  }
+}
+
+/* ══════════════════════════════════════
+   RUN PYTHON
+   BUG FIX: reset capturedLines + inputsUsed ก่อนทุกครั้ง
+            Skulpt ใช้ Promise, fallback ใช้ sync
+══════════════════════════════════════ */
+async function runCode(code) {
+  capturedLines = [];
+  inputsUsed = false;
+
+  if (typeof Sk !== 'undefined' && engineReady) {
+    try {
+      await Sk.misceval.asyncToPromise(() =>
+        Sk.importMainWithBody('<stdin>', false, code, true)
+      );
+      return true;
+    } catch (err) {
+      // BUG FIX: แสดง error message ที่อ่านได้ แทน [object Object]
+      const msg = err.args ? err.args.v[0].v : (err.toString());
+      appendLine('bad', `❌ ${msg}`);
+      return false;
+    }
+  } else {
+    return runFallbackPython(code);
+  }
+}
+
+/* ══════════════════════════════════════
+   LEVEL MANAGEMENT
+   BUG FIX: getMaxUnlockedLevel คืนค่า index ด่านสูงสุดที่เปิดแล้ว
+            (= ด่านที่ผ่าน + 1, ถ้ายังไม่ผ่านเลย = 0)
+══════════════════════════════════════ */
+function getMaxUnlocked() {
+  let max = 0;
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (completedLevels.has(i)) {
+      max = Math.min(i + 1, LEVELS.length - 1);
+    }
+  }
+  return max;
+}
+
+function buildProgress() {
+  levelProgress.innerHTML = '';
+  LEVELS.forEach((lv, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'level-dot';
+    dot.textContent = idx + 1;
+    dot.title = `ด่าน ${idx + 1}: ${lv.title}`;
+
+    if (completedLevels.has(idx)) dot.classList.add('completed');
+    else if (idx === currentLevel) dot.classList.add('current');
+    else if (idx > getMaxUnlocked()) dot.classList.add('locked');
+
+    dot.addEventListener('click', () => {
+      if (!dot.classList.contains('locked')) {
+        goToLevel(idx);
+      }
+    });
+    levelProgress.appendChild(dot);
+  });
+}
+
+function goToLevel(idx) {
+  currentLevel = idx;
+  hintIndex = 0;
+  const lv = LEVELS[idx];
+
+  promptBox.innerHTML = lv.prompt;
+  levelChip.textContent = `Level ${idx + 1} / ${LEVELS.length}`;
+  levelTitleEl.textContent = lv.title;
+
+  if (completedLevels.has(idx)) {
+    resultChip.textContent = 'ผ่านแล้ว ✅';
+    resultChip.className = 'chip unlocked';
+  } else {
+    resultChip.textContent = 'ยังไม่ตรวจ';
+    resultChip.className = 'chip';
+  }
+
+  editor.value = '';
+  hintBox.style.display = 'none';
+  updateButtons();
+  buildProgress();
+}
+
+function updateButtons() {
+  const done     = completedLevels.has(currentLevel);
+  const hasNext  = currentLevel < LEVELS.length - 1;
+  const isLast   = currentLevel === LEVELS.length - 1;
+
+  prevBtn.disabled = currentLevel === 0;
+
+  // BUG FIX: nextBtn เปิดถ้า (ด่านนี้ผ่าน) หรือ (ด่านถัดไป <= maxUnlocked)
+  if (isLast) {
+    nextBtn.disabled = !done;
+    nextBtn.textContent = done ? '🎉 เสร็จสิ้น!' : '➡ ด่านถัดไป';
+  } else {
+    const nextUnlocked = (currentLevel + 1) <= getMaxUnlocked() || done;
+    nextBtn.disabled = !nextUnlocked;
+    nextBtn.textContent = '➡ ด่านถัดไป';
+  }
+}
+
+function showSuccess(msg) {
+  const el = document.createElement('div');
+  el.className = 'success-animation';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 500);
+  }, 1500);
+}
+
+/* ══════════════════════════════════════
+   BUTTON EVENTS
+══════════════════════════════════════ */
+runBtn.addEventListener('click', async () => {
+  const code = editor.value.trim();
+  if (!code) { appendLine('bad', 'ไม่มีโค้ดให้รัน'); return; }
+  runBtn.disabled = true;
+  runBtn.textContent = '⏳ กำลังรัน...';
+  await runCode(code);
+  runBtn.disabled = false;
+  runBtn.textContent = '▶ Run';
+});
+
+checkBtn.addEventListener('click', async () => {
+  const code = editor.value.trim();
+  if (!code) { appendLine('bad', 'ไม่มีโค้ดให้ตรวจสอบ'); return; }
+
+  checkBtn.disabled = true;
+  checkBtn.textContent = '⏳ ตรวจสอบ...';
+
+  // BUG FIX: clear output + reset counters ก่อนตรวจทุกครั้ง
+  clearOutput();
+
+  const ok = await runCode(code);
+  if (ok) {
+    const lv = LEVELS[currentLevel];
+    // BUG FIX: ส่ง capturedLines[] และ inputsUsed ให้ validator แทน string เดิม
+    const passed = lv.validator(capturedLines, inputsUsed);
+
+    if (passed) {
+      completedLevels.add(currentLevel);
+      resultChip.textContent = 'ถูกต้อง ✅';
+      resultChip.className = 'chip unlocked';
+      showSuccess(`🎉 ผ่านด่าน ${currentLevel + 1}!`);
+      updateButtons();
+      buildProgress();
+    } else {
+      resultChip.textContent = 'ยังไม่ถูก ❌';
+      resultChip.className = 'chip';
+      appendLine('bad', 'ผลลัพธ์ยังไม่ตรงตามที่ต้องการ — ลองอีกครั้ง');
+    }
+  } else {
+    resultChip.textContent = 'มีข้อผิดพลาด ❌';
+    resultChip.className = 'chip';
+  }
+
+  checkBtn.disabled = false;
+  checkBtn.textContent = '✔ ตรวจสอบ';
+});
+
+hintBtn.addEventListener('click', () => {
+  const lv = LEVELS[currentLevel];
+  hintBox.style.display = 'block';
+  hintBox.textContent = `💡 คำใบ้ที่ ${hintIndex + 1}: ${lv.hints[hintIndex % lv.hints.length]}`;
+  hintIndex++;
+});
+
+exampleBtn.addEventListener('click', () => {
+  editor.value = LEVELS[currentLevel].example;
+  appendLine('info', 'ใส่โค้ดตัวอย่างแล้ว (นี่แค่ตัวอย่าง ไม่ใช่คำตอบ)');
+});
+
+clearBtn.addEventListener('click', () => {
+  editor.value = '';
+  appendLine('info', 'ล้างโค้ดแล้ว');
+});
+
+clearOutputBtn.addEventListener('click', () => { clearOutput(); });
+
+prevBtn.addEventListener('click', () => {
+  if (currentLevel > 0) {
+    // BUG FIX: log ก่อน goToLevel เพราะ goToLevel เปลี่ยน currentLevel
+    const prev = currentLevel - 1;
+    goToLevel(prev);
+    appendLine('info', `ย้อนกลับไปด่าน ${prev + 1}`);
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  if (currentLevel < LEVELS.length - 1) {
+    const next = currentLevel + 1;
+    goToLevel(next);
+    appendLine('info', `ไปด่าน ${next + 1}: ${LEVELS[next].title}`);
+  } else {
+    showSuccess('🎊 ยินดีด้วย! ผ่านทุกด่านแล้ว!');
+  }
+});
+
+/* ══════════════════════════════════════
+   KEYBOARD SHORTCUTS
+══════════════════════════════════════ */
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'Enter') { e.preventDefault(); runBtn.click(); }
+    if (e.key === 's')     { e.preventDefault(); checkBtn.click(); }
+  }
+});
+
+/* ══════════════════════════════════════
+   INIT
+   BUG FIX: setupSkulpt เรียกครั้งเดียว
+            ไม่ duplicate ผ่าน onload + init
+══════════════════════════════════════ */
+engineReady = setupSkulpt();
+goToLevel(0);
+setTimeout(() => {
+  appendLine('info', '🚀 ยินดีต้อนรับ! เริ่มต้นจากด่าน 1 ได้เลย');
+  if (!engineReady) {
+    appendLine('info', '⚡ ใช้ Python interpreter ในตัว (รองรับคำสั่งพื้นฐาน)');
+  }
+}, 300);
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('room_id')
+                  ->nullable()
+                  ->after('school')
+                  ->constrained('rooms')
+                  ->onDelete('set null')
+                  ->comment('ห้องที่ผู้เล่นสังกัด null = ไม่ได้เข้าผ่าน room code');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['room_id']);
+            $table->dropColumn('room_id');
+        });
+    }
+};

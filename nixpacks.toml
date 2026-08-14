@@ -1,0 +1,11 @@
+providers = ["php"]
+
+[variables]
+NIXPACKS_PHP_ROOT_DIR = "public"
+APP_ENV = "production"
+LOG_CHANNEL = "stderr"
+
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader"
+]
